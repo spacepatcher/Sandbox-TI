@@ -159,3 +159,7 @@ venv_3.5
 # Custom
 indices/*.json
 keys.json
+
+
+# Docker persistence data
+docker-persistance/elasticsearch/data/*
