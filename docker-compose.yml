@@ -1,0 +1,42 @@
+version: "3.0"
+
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:5.3.0
+    environment:
+      ES_JAVA_OPTS: "-Xms1g -Xmx1g"
+    volumes:
+      - ./docker-persistance/elasticsearch/data:/usr/share/elasticsearch/data
+      - ./docker-persistance/elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 262144
+        hard: 262144
+    networks:
+      - elk
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:5.3.0
+    volumes:
+      - ./docker-persistance/kibana/config:/usr/share/kibana/config
+    networks:
+      - elk
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:5.3.0
+    ports:
+      - 127.0.0.1:5601:5601
+    volumes:
+      - ./docker-persistance/logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml
+      - ./docker-persistance/logstash/pipeline:/usr/share/logstash/pipeline
+    environment:
+      LS_JAVA_OPTS: "-Xmx256m -Xms256m"
+    networks:
+      - elk
+
+networks:
+  elk:
+    driver: bridge
