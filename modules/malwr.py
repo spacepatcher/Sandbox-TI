@@ -6,11 +6,12 @@ from bs4 import BeautifulSoup
 import time
 from datetime import datetime
 import json
-import traceback
+import logging
 
 
 config_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "config.json")
 feeds_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "feeds")
+log_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "run.log")
 
 
 def read_json(file):
@@ -30,10 +31,10 @@ def parse_page(page):
     data = []
     soup = BeautifulSoup(page, "html.parser")
     table = soup.find("table")
-    table_body = table.find('tbody')
-    rows = table_body.find_all('tr')
+    table_body = table.find("tbody")
+    rows = table_body.find_all("tr")
     for row in rows:
-        cols = row.find_all('td')
+        cols = row.find_all("td")
         cols_list = [item.text.strip() for item in cols]
         data.append(
             {
@@ -61,24 +62,23 @@ def filter_old(raw_data):
                 analysis_timestamp = datetime.strptime(analysis_timestamp_raw, "%b %d, %Y, %I:%M %p")
                 break
             except ValueError:
-                pass
+                logger.debug("Bad feed item: bad date")
             try:
                 analysis_timestamp = datetime.strptime(analysis_timestamp_raw, "%b %d, %Y, %I %p")
                 break
             except ValueError:
-                pass
+                logger.debug("Bad feed item: bad date")
             try:
                 analysis_timestamp = datetime.strptime(analysis_timestamp_raw, "%B %d, %Y, %I:%M %p")
                 break
             except ValueError:
-                pass
+                logger.debug("Bad feed item: bad date")
             try:
                 analysis_timestamp = datetime.strptime(analysis_timestamp_raw, "%B %d, %Y, %I %p")
                 break
             except ValueError:
-                pass
-            finally:
-                break
+                logger.error("Unable to parse feed")
+                sys.exit(1)
         added_hash = data_item.get("md5")
         if analysis_timestamp >= last_added_timestamp and added_hash != last_added_hash:
             filtered.append(data_item)
@@ -96,8 +96,7 @@ def m_grab(url=None):
     try:
         r = requests.get(url, headers=headers)
     except requests.RequestException as e:
-        print("Information grabbing failed")
-        print(e)
+        logger.error("Information grabbing failed")
         sys.exit(1)
     if r.status_code == 200:
         data = parse_page(r.text)
@@ -105,18 +104,21 @@ def m_grab(url=None):
             data_filtered = filter_old(raw_data=data)
             feed_file = os.path.join(feeds_path, "intel_malwr_{}.json".format(datetime.now().isoformat().split(".")[0].replace(":", "_")))
             write_json(file=feed_file, json_obj=data_filtered)
+            logger.info("Successfully saved in %s" % feed_file)
         else:
-            print("Empty HTTP response")
+            logger.warning("Empty HTTP response")
     else:
-        print("Bad HTTP response, got %d" % r.status_code)
+        logger.error("Bad HTTP response, got %d" % r.status_code)
         sys.exit(1)
 
 
 if __name__ == "__main__":
+    logger = logging.getLogger(__name__)
+    formatter = logging.basicConfig(filename=log_path, level=logging.INFO, format="%(asctime)s [%(levelname)s]  [%(filename)s] %(funcName)s: %(message)s")
     feed_url = "https://malwr.com/analysis/?page=1"
     try:
+        logger.info("Started")
         m_grab(url=feed_url)
     except Exception:
-        print("Information gathering interrupted")
-        traceback.print_exc()
+        logger.error("Information gathering interrupted", exc_info=True)
         sys.exit(1)

@@ -5,11 +5,12 @@ from fake_useragent import UserAgent
 import time
 from datetime import datetime
 import json
-import traceback
+import logging
 
 
 config_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "config.json")
 feeds_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "feeds")
+log_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "run.log")
 
 
 def read_json(file):
@@ -36,13 +37,11 @@ def filter_old(raw_data):
         try:
             analysis_timestamp = datetime(*time.strptime(data_item.get("analysis_start_time"), "%Y-%m-%d %H:%M:%S")[:6])
             added_hash = data_item["md5"]
-        except ValueError as e:
-            print("Bad feed: bad analysis_start_time")
-            print(e)
+        except ValueError:
+            logger.debug("Bad feed item: bad analysis_start_time")
             continue
-        except KeyError as e:
-            print("Bad feed: no md5")
-            print(e)
+        except KeyError:
+            logger.debug("Bad feed item: no md5")
             continue
         if analysis_timestamp >= last_added_timestamp and added_hash != last_added_hash:
             filtered.append(data_item)
@@ -57,7 +56,7 @@ def filter_json_arrays(raw_json):
     for dict_item in raw_json:
         i = 0
         for key, value in dict_item.copy().items():
-            if type(value) == list:
+            if type(value) == list and len(value) > 0:
                 if type(value[0]) == dict:
                     for internal_dict in value:
                         new_key = key + str(i)
@@ -79,9 +78,8 @@ def ha_grab(url=None):
     }
     try:
         r = requests.get(url, headers=headers)
-    except requests.RequestException as e:
-        print("Information grabbing failed")
-        print(e)
+    except requests.RequestException:
+        logger.error("Information grabbing failed")
         sys.exit(1)
     if r.status_code == 200:
         try:
@@ -91,21 +89,24 @@ def ha_grab(url=None):
                 data_filtered = filter_json_arrays(raw_json=data_filtered)
                 feed_file = os.path.join(feeds_path, "intel_hybrid-analysis_{}.json".format(datetime.now().isoformat().split(".")[0].replace(":", "_")))
                 write_json(file=feed_file, json_obj=data_filtered)
+                logger.info("Successfully saved in %s" % feed_file)
             else:
-                print("Empty HTTP response")
+                logger.warning("Empty HTTP response")
         except json.decoder.JSONDecodeError:
-            print("Empty feed file or bad json")
+            logger.error("Empty feed file or bad json")
             sys.exit(1)
     else:
-        print("Bad HTTP response, got %d" % r.status_code)
+        logger.error("Bad HTTP response, got %d" % r.status_code)
         sys.exit(1)
 
 
 if __name__ == "__main__":
+    logger = logging.getLogger(__name__)
+    formatter = logging.basicConfig(filename=log_path, level=logging.INFO, format="%(asctime)s [%(levelname)s]  [%(filename)s] %(funcName)s: %(message)s")
     feed_url = "https://www.hybrid-analysis.com/feed?json"
     try:
+        logger.info("Started")
         ha_grab(url=feed_url)
     except Exception:
-        print("Information gathering interrupted")
-        traceback.print_exc()
+        logger.error("Information gathering interrupted", exc_info=True)
         sys.exit(1)
