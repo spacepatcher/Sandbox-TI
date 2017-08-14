@@ -11,7 +11,7 @@ config_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__fil
 feeds_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "feeds")
 
 
-def read_config(file):
+def read_json(file):
     with open(file, "r") as json_file:
         data = json.load(json_file)
     return data
@@ -28,7 +28,7 @@ def filter_old(raw_data):
     filtered = []
     analysis_timestamp = None
     added_hash = None
-    config = read_config(file=config_path)
+    config = read_json(file=config_path)
     last_added_timestamp = datetime(*time.strptime(config.get("hybrid-analysis").get("last_added"), "%Y-%m-%d %H:%M:%S")[:6])
     last_added_hash = config.get("hybrid-analysis").get("last_added_hash")
     for data_item in reversed(raw_data.get("data")):
