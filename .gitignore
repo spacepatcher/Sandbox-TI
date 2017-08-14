@@ -157,7 +157,7 @@ venv_3.5
 
 
 # Custom
-indices/*.json
+feeds/*.json
 keys.json
 
 
