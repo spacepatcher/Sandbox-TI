@@ -6,39 +6,55 @@ import sys
 
 
 keys_file = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "keys.json")
+config_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "config.json")
+feeds_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "feeds")
 
 
-def read_config(file):
-    with open(file, "r") as json_data_file:
-        data = json.load(json_data_file)
+def read_json(file):
+    with open(file, "r") as json_file:
+        data = json.load(json_file)
     return data
 
 
-def vt_grab():
-    keys = read_config(keys_file)
-    payload = {"key": keys["keys"].get("virus-total")}
-    r = requests.get("https://www.virustotal.com/intelligence/hunting/notifications-feed/", params=payload)
+def write_json(json_obj, file):
+    with open(file, "w") as json_file:
+        json.dump(json_obj, json_file, indent=2, sort_keys=True)
+        json_file.write("\n")
+    return
+
+
+def vt_grab(url=None):
+    keys = read_json(keys_file)
+    payload = {
+        "key": keys["keys"].get("virus-total")
+    }
+    try:
+        r = requests.get(url, params=payload)
+    except requests.RequestException as e:
+        print("Information grabbing failed")
+        print(e)
+        sys.exit(1)
     if r.status_code == 200:
         data = r.json()
         if data.get("result") == 1:
             grabbed_docs = []
             everything = []
-            current_time = datetime.now().isoformat().split(".")[0].replace(":", "_")
             for i in data.get("notifications"):
                 grabbed_docs.append(i.get("id"))
                 everything.append(i)
-            with open(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "indices", "intel_virus-total_{}.json".format(current_time)), "w") as f:
-                json.dump(everything, f)
-                f.write("\n")
+            feed_file = os.path.join(feeds_path, "intel_virus-total_{}.json".format(datetime.now().isoformat().split(".")[0].replace(":", "_")))
+            write_json(file=feed_file, json_obj=everything)
             # delete grabbed docs from notifications
             requests.post("https://www.virustotal.com/intelligence/hunting/delete-notifications/programmatic/", params=payload, json=grabbed_docs)
     else:
-        return
+        print("Bad HTTP response, got %d" % r.status_code)
+        sys.exit(1)
 
 
 if __name__ == "__main__":
+    feed_url = "https://www.virustotal.com/intelligence/hunting/notifications-feed/"
     try:
-        vt_grab()
+        vt_grab(url=feed_url)
     except Exception as e:
         print("Information gathering interrupted")
         print(e)
