@@ -45,8 +45,11 @@ def vt_grab(url=None):
                     grabbed_docs.append(i.get("id"))
                     everything.append(i)
                 feed_file = os.path.join(feeds_path, "intel_virus-total_{}.json".format(datetime.now().isoformat().split(".")[0].replace(":", "_")))
-                write_json(file=feed_file, json_obj=everything)
-                logger.info("Successfully saved in %s" % feed_file)
+                if len(everything) > 0:
+                    write_json(file=feed_file, json_obj=everything)
+                    logger.info("Successfully saved in %s" % feed_file)
+                else:
+                    logger.warning("Empty feed, no data saved")
                 # delete grabbed docs from notifications
                 requests.post("https://www.virustotal.com/intelligence/hunting/delete-notifications/programmatic/", params=payload, json=grabbed_docs)
         except json.decoder.JSONDecodeError:

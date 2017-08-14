@@ -43,8 +43,11 @@ def metadefender_grab(url=None):
         try:
             data = r.json()
             feed_file = os.path.join(feeds_path, "intel_metadefender_{}.json".format(datetime.now().isoformat().split(".")[0].replace(":", "_")))
-            write_json(file=feed_file, json_obj=data)
-            logger.info("Successfully saved in %s" % feed_file)
+            if len(data) > 0:
+                write_json(file=feed_file, json_obj=data)
+                logger.info("Successfully saved in %s" % feed_file)
+            else:
+                logger.warning("Empty feed, no data saved")
         except json.decoder.JSONDecodeError:
             logger.error("Empty feed file or bad json")
             sys.exit(1)

@@ -100,11 +100,14 @@ def m_grab(url=None):
         sys.exit(1)
     if r.status_code == 200:
         data = parse_page(r.text)
-        if data:
+        if len(data) > 0:
             data_filtered = filter_old(raw_data=data)
             feed_file = os.path.join(feeds_path, "intel_malwr_{}.json".format(datetime.now().isoformat().split(".")[0].replace(":", "_")))
-            write_json(file=feed_file, json_obj=data_filtered)
-            logger.info("Successfully saved in %s" % feed_file)
+            if len(data_filtered) > 0:
+                write_json(file=feed_file, json_obj=data_filtered)
+                logger.info("Successfully saved in %s" % feed_file)
+            else:
+                logger.warning("Empty feed, no data saved")
         else:
             logger.warning("Empty HTTP response")
     else:
