@@ -55,18 +55,30 @@ def filter_old(raw_data):
     last_added_hash = config.get("malwr").get("last_added_hash")
     for data_item in reversed(raw_data):
         analysis_timestamp_raw = data_item["date"].replace(".", "").replace("am", "AM").replace("pm", "PM").replace("midnight", "12 AM")
-        try:
-            analysis_timestamp = datetime.strptime(analysis_timestamp_raw, "%B %d, %Y, %I:%M %p")
-            added_hash = data_item.get("md5")
-        except ValueError:
-            pass
-        try:
-            analysis_timestamp = datetime.strptime(analysis_timestamp_raw, "%B %d, %Y, %I:%M %p")
-            added_hash = data_item.get("md5")
-        except ValueError as e:
-            print("Bad feed: bad date")
-            print(e)
-            continue
+        while True:
+            try:
+                analysis_timestamp = datetime.strptime(analysis_timestamp_raw, "%b %d, %Y, %I:%M %p")
+                break
+            except ValueError:
+                pass
+            try:
+                analysis_timestamp = datetime.strptime(analysis_timestamp_raw, "%b %d, %Y, %I %p")
+                break
+            except ValueError:
+                pass
+            try:
+                analysis_timestamp = datetime.strptime(analysis_timestamp_raw, "%B %d, %Y, %I:%M %p")
+                break
+            except ValueError:
+                pass
+            try:
+                analysis_timestamp = datetime.strptime(analysis_timestamp_raw, "%B %d, %Y, %I %p")
+                break
+            except ValueError:
+                pass
+            finally:
+                break
+        added_hash = data_item.get("md5")
         if analysis_timestamp >= last_added_timestamp and added_hash != last_added_hash:
             filtered.append(data_item)
     config["malwr"]["last_added"] = analysis_timestamp.strftime("%Y-%m-%d %H:%M:%S")
