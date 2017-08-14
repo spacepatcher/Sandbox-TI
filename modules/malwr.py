@@ -6,6 +6,7 @@ from bs4 import BeautifulSoup
 import time
 from datetime import datetime
 import json
+import traceback
 
 
 config_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "config.json")
@@ -115,7 +116,7 @@ if __name__ == "__main__":
     feed_url = "https://malwr.com/analysis/?page=1"
     try:
         m_grab(url=feed_url)
-    except Exception as e:
+    except Exception:
         print("Information gathering interrupted")
-        print(e)
+        traceback.print_exc()
         sys.exit(1)

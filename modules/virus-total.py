@@ -3,6 +3,7 @@ import json
 from datetime import datetime
 import os
 import sys
+import traceback
 
 
 keys_file = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "keys.json")
@@ -55,7 +56,7 @@ if __name__ == "__main__":
     feed_url = "https://www.virustotal.com/intelligence/hunting/notifications-feed/"
     try:
         vt_grab(url=feed_url)
-    except Exception as e:
+    except Exception:
         print("Information gathering interrupted")
-        print(e)
+        traceback.print_exc()
         sys.exit(1)
