@@ -157,9 +157,9 @@ venv_3.5
 
 
 # Custom
-feeds/*.json
 keys.json
 
 
 # Docker persistence data
 docker-persistance/elasticsearch/data/*
+docker-persistance/logstash/feeds/*

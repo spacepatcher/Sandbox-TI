@@ -32,6 +32,7 @@ services:
     volumes:
       - ./docker-persistance/logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml
       - ./docker-persistance/logstash/pipeline:/usr/share/logstash/pipeline
+      - ./docker-persistance/logstash/feeds:/opt/feeds
     environment:
       LS_JAVA_OPTS: "-Xmx256m -Xms256m"
     networks:
