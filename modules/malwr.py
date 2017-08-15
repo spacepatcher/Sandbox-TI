@@ -13,6 +13,10 @@ config_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__fil
 feeds_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "docker-persistance/logstash/feeds")
 log_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "run.log")
 
+logger = logging.getLogger(__name__)
+formatter = logging.basicConfig(filename=log_path, level=logging.INFO, format="%(asctime)s [%(levelname)s]  [%(filename)s] %(funcName)s: %(message)s")
+feed_url = "https://malwr.com/analysis/?page=1"
+
 
 def read_json(file):
     with open(file, "r") as json_file:
@@ -115,10 +119,7 @@ def m_grab(url=None):
         sys.exit(1)
 
 
-if __name__ == "__main__":
-    logger = logging.getLogger(__name__)
-    formatter = logging.basicConfig(filename=log_path, level=logging.INFO, format="%(asctime)s [%(levelname)s]  [%(filename)s] %(funcName)s: %(message)s")
-    feed_url = "https://malwr.com/analysis/?page=1"
+def malwr_run():
     try:
         logger.info("Started")
         m_grab(url=feed_url)

@@ -11,6 +11,10 @@ keys_file = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file_
 feeds_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "docker-persistance/logstash/feeds")
 log_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "run.log")
 
+logger = logging.getLogger(__name__)
+formatter = logging.basicConfig(filename=log_path, level=logging.INFO, format="%(asctime)s [%(levelname)s]  [%(filename)s] %(funcName)s: %(message)s")
+feed_url = "https://www.metadefender.com/feeds/json"
+
 
 def read_json(file):
     with open(file, "r") as json_file:
@@ -56,10 +60,7 @@ def metadefender_grab(url=None):
         sys.exit(1)
 
 
-if __name__ == "__main__":
-    logger = logging.getLogger(__name__)
-    formatter = logging.basicConfig(filename=log_path, level=logging.INFO, format="%(asctime)s [%(levelname)s]  [%(filename)s] %(funcName)s: %(message)s")
-    feed_url = "https://www.metadefender.com/feeds/json"
+def metadefender_run():
     try:
         logger.info("Started")
         metadefender_grab(url=feed_url)
