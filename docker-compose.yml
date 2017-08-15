@@ -26,6 +26,8 @@ services:
       - ./docker-persistance/kibana/config:/usr/share/kibana/config
     networks:
       - elk
+    depends_on:
+      - elasticsearch
 
   logstash:
     image: docker.elastic.co/logstash/logstash:5.3.0
@@ -37,6 +39,19 @@ services:
       LS_JAVA_OPTS: "-Xmx256m -Xms256m"
     networks:
       - elk
+    depends_on:
+      - elasticsearch
+
+  grabber:
+    image: python:3.6.2-alpine3.6
+    volumes:
+      - ./:/app/Sandbox-TI
+    working_dir: /app/Sandbox-TI
+    command: sh -c "apk update && apk upgrade && apk add git && pip install --no-cache-dir -r requirements.txt && python scheduler.py"
+    networks:
+      - elk
+    depends_on:
+      - logstash
 
 networks:
   elk:
