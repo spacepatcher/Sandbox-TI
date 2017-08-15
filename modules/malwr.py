@@ -22,7 +22,7 @@ def read_json(file):
 
 def write_json(json_obj, file):
     with open(file, "w") as json_file:
-        json.dump(json_obj, json_file, indent=2, sort_keys=True)
+        json.dump(json_obj, json_file)
         json_file.write("\n")
     return
 
