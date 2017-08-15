@@ -7,7 +7,6 @@ import logging
 
 
 keys_file = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "keys.json")
-config_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "config.json")
 feeds_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "docker-persistance/logstash/feeds")
 log_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "run.log")
 
