@@ -10,3 +10,5 @@ path.config: /usr/share/logstash/pipeline
 ##     https://www.elastic.co/guide/en/x-pack/current/installing-xpack.html#xpack-enabling
 #
 xpack.monitoring.enabled: false
+queue.type: persisted
+queue.max_bytes: 8gb
