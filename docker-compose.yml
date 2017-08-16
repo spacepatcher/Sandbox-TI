@@ -34,7 +34,7 @@ services:
     volumes:
       - ./docker-persistance/logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml
       - ./docker-persistance/logstash/pipeline:/usr/share/logstash/pipeline
-      - ./docker-persistance/logstash/feeds:/opt/feeds
+      - ./app/feeds:/var/feeds
     environment:
       LS_JAVA_OPTS: "-Xmx256m -Xms256m"
     networks:
@@ -43,11 +43,11 @@ services:
       - elasticsearch
 
   grabber:
-    image: python:3.6.2-alpine3.6
+    build:
+      dockerfile: app/Dockerfile
+      context: .
     volumes:
-      - ./:/app/Sandbox-TI
-    working_dir: /app/Sandbox-TI
-    command: sh -c "apk update && apk upgrade && apk add git && pip install --no-cache-dir -r requirements.txt && python scheduler.py"
+      - ./app:/app/Sandbox-TI
     networks:
       - elk
     depends_on:

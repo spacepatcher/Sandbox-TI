@@ -162,4 +162,4 @@ keys.json
 
 # Docker persistence data
 docker-persistance/elasticsearch/data/*
-docker-persistance/logstash/feeds/*
+app/feeds/*

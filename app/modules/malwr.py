@@ -10,7 +10,7 @@ import logging
 
 
 config_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "sync.json")
-feeds_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "docker-persistance/logstash/feeds")
+feeds_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "feeds")
 log_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "run.log")
 
 logger = logging.getLogger(__name__)
@@ -106,7 +106,7 @@ def m_grab(url=None):
         data = parse_page(r.text)
         if len(data) > 0:
             data_filtered = filter_old(raw_data=data)
-            feed_file = os.path.join(feeds_path, "intel_malwr_{}.json".format(datetime.now().isoformat().split(".")[0].replace(":", "_")))
+            feed_file = os.path.join(feeds_dir, "intel_malwr_{}.json".format(datetime.now().isoformat().split(".")[0].replace(":", "_")))
             if len(data_filtered) > 0:
                 write_json(file=feed_file, json_obj=data_filtered)
                 logger.info("Successfully saved in %s" % feed_file)

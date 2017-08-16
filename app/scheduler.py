@@ -6,8 +6,8 @@ from modules.metadefender import metadefender_run
 # from modules.virus_total import vt_run
 
 
-schedule.every(40).minutes.do(ha_run)
-schedule.every(20).minutes.do(malwr_run)
+schedule.every(40).seconds.do(ha_run)
+schedule.every(20).seconds.do(malwr_run)
 schedule.every(12).hours.do(metadefender_run)
 # schedule.every(10).minutes.do(vt_run)
 
