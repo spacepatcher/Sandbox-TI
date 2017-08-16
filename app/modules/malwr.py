@@ -82,10 +82,10 @@ def filter_old(raw_data):
                 break
             except ValueError:
                 logger.error("Unable to parse feed")
-                sys.exit(1)
         added_hash = data_item.get("md5")
-        if analysis_timestamp >= last_added_timestamp and added_hash != last_added_hash:
-            filtered.append(data_item)
+        if analysis_timestamp and added_hash:
+            if analysis_timestamp >= last_added_timestamp and added_hash != last_added_hash:
+                filtered.append(data_item)
     config["malwr"]["last_added"] = analysis_timestamp.strftime("%Y-%m-%d %H:%M:%S")
     config["malwr"]["last_added_hash"] = added_hash
     write_json(json_obj=config, file=config_path)
