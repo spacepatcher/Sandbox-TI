@@ -143,7 +143,6 @@ fabric.properties
 ### VirtualEnv template
 # Virtualenv
 # http://iamzed.com/2009/05/07/a-primer-on-virtualenv/
-.Python
 [Bb]in
 [Ii]nclude
 [Ll]ib
@@ -151,14 +150,13 @@ fabric.properties
 [Ll]ocal
 [Ss]cripts
 pyvenv.cfg
-.venv
 pip-selfcheck.json
 venv_3.5
 
 
-# Custom
-keys.json
-
+### Custom
+app/keys.json
+app/run.log
 
 # Docker persistence data
 docker-persistance/elasticsearch/data/*
