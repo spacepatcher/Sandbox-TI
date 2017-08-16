@@ -161,3 +161,6 @@ app/run.log
 # Docker persistence data
 docker-persistance/elasticsearch/data/*
 app/feeds/*
+
+# For empty folders
+!.keep
