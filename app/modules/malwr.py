@@ -79,9 +79,10 @@ def filter_old(raw_data):
                 logger.debug("Bad feed item: bad date")
             try:
                 analysis_timestamp = datetime.strptime(analysis_timestamp_raw, "%B %d, %Y, %I %p")
-                break
             except ValueError:
                 logger.error("Unable to parse feed. Data item: %s" % str(data_item))
+            finally:
+                break
         added_hash = data_item.get("md5")
         if analysis_timestamp and added_hash:
             if analysis_timestamp >= last_added_timestamp and added_hash != last_added_hash:
