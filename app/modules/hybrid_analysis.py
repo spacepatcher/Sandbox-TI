@@ -84,7 +84,6 @@ def ha_grab(url=None):
         r = requests.get(url, headers=headers)
     except requests.RequestException:
         logger.error("Information grabbing failed")
-        sys.exit(1)
     if r.status_code == 200:
         try:
             data = r.json()
@@ -101,10 +100,8 @@ def ha_grab(url=None):
                 logger.warning("Empty HTTP response")
         except json.decoder.JSONDecodeError:
             logger.error("Empty feed file or bad json")
-            sys.exit(1)
     else:
         logger.error("Bad HTTP response, got %d" % r.status_code)
-        sys.exit(1)
 
 
 def ha_run():

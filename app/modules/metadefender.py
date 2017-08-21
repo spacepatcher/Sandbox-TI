@@ -42,7 +42,6 @@ def metadefender_grab(url=None):
         r = requests.get(url, params=payload, headers=headers)
     except requests.RequestException as e:
         logger.error("Information grabbing failed")
-        sys.exit(1)
     if r.status_code == 200:
         try:
             data = r.json()
@@ -54,10 +53,8 @@ def metadefender_grab(url=None):
                 logger.warning("Empty feed, no data saved")
         except json.decoder.JSONDecodeError:
             logger.error("Empty feed file or bad json")
-            sys.exit(1)
     else:
         logger.error("Bad HTTP response, got %d" % r.status_code)
-        sys.exit(1)
 
 
 def metadefender_run():
