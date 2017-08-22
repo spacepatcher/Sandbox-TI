@@ -82,26 +82,27 @@ def ha_grab(url=None):
     }
     try:
         r = requests.get(url, headers=headers)
+        if r.status_code == 200:
+            try:
+                data = r.json()
+                if data.get("count") > 0:
+                    data_filtered = filter_old(raw_data=data)
+                    data_filtered = filter_json_arrays(raw_json=data_filtered)
+                    feed_file = os.path.join(feeds_dir, "intel_hybrid-analysis_{}.json".format(
+                        datetime.now().isoformat().split(".")[0].replace(":", "_")))
+                    if len(data_filtered) > 0:
+                        write_json(file=feed_file, json_obj=data_filtered)
+                        logger.info("Successfully saved in %s" % feed_file)
+                    else:
+                        logger.warning("Empty feed, no data saved")
+                else:
+                    logger.warning("Empty HTTP response")
+            except json.decoder.JSONDecodeError:
+                logger.error("Empty feed file or bad json")
+        else:
+            logger.error("Bad HTTP response, got %d" % r.status_code)
     except requests.RequestException:
         logger.error("Information grabbing failed")
-    if r.status_code == 200:
-        try:
-            data = r.json()
-            if data.get("count") > 0:
-                data_filtered = filter_old(raw_data=data)
-                data_filtered = filter_json_arrays(raw_json=data_filtered)
-                feed_file = os.path.join(feeds_dir, "intel_hybrid-analysis_{}.json".format(datetime.now().isoformat().split(".")[0].replace(":", "_")))
-                if len(data_filtered) > 0:
-                    write_json(file=feed_file, json_obj=data_filtered)
-                    logger.info("Successfully saved in %s" % feed_file)
-                else:
-                    logger.warning("Empty feed, no data saved")
-            else:
-                logger.warning("Empty HTTP response")
-        except json.decoder.JSONDecodeError:
-            logger.error("Empty feed file or bad json")
-    else:
-        logger.error("Bad HTTP response, got %d" % r.status_code)
 
 
 def ha_run():

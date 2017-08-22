@@ -35,32 +35,31 @@ def vt_grab(url=None):
     }
     try:
         r = requests.get(url, params=payload)
+        if r.status_code == 200:
+            try:
+                data = r.json()
+                if data.get("result") == 1:
+                    grabbed_docs = []
+                    everything = []
+                    for i in data.get("notifications"):
+                        grabbed_docs.append(i.get("id"))
+                        everything.append(i)
+                    feed_file = os.path.join(feeds_dir, "intel_virus-total_{}.json".format(
+                        datetime.now().isoformat().split(".")[0].replace(":", "_")))
+                    if len(everything) > 0:
+                        write_json(file=feed_file, json_obj=everything)
+                        logger.info("Successfully saved in %s" % feed_file)
+                    else:
+                        logger.warning("Empty feed, no data saved")
+                    # delete grabbed docs from notifications
+                    requests.post("https://www.virustotal.com/intelligence/hunting/delete-notifications/programmatic/",
+                                  params=payload, json=grabbed_docs)
+            except json.decoder.JSONDecodeError:
+                logger.error("Empty feed file or bad json")
+        else:
+            logger.error("Bad HTTP response, got %d" % r.status_code)
     except requests.RequestException:
         logger.error("Information grabbing failed")
-        sys.exit(1)
-    if r.status_code == 200:
-        try:
-            data = r.json()
-            if data.get("result") == 1:
-                grabbed_docs = []
-                everything = []
-                for i in data.get("notifications"):
-                    grabbed_docs.append(i.get("id"))
-                    everything.append(i)
-                feed_file = os.path.join(feeds_dir, "intel_virus-total_{}.json".format(datetime.now().isoformat().split(".")[0].replace(":", "_")))
-                if len(everything) > 0:
-                    write_json(file=feed_file, json_obj=everything)
-                    logger.info("Successfully saved in %s" % feed_file)
-                else:
-                    logger.warning("Empty feed, no data saved")
-                # delete grabbed docs from notifications
-                requests.post("https://www.virustotal.com/intelligence/hunting/delete-notifications/programmatic/", params=payload, json=grabbed_docs)
-        except json.decoder.JSONDecodeError:
-            logger.error("Empty feed file or bad json")
-            sys.exit(1)
-    else:
-        logger.error("Bad HTTP response, got %d" % r.status_code)
-        sys.exit(1)
 
 
 def vt_run():

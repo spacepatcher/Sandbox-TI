@@ -40,21 +40,22 @@ def metadefender_grab(url=None):
     }
     try:
         r = requests.get(url, params=payload, headers=headers)
-    except requests.RequestException as e:
+        if r.status_code == 200:
+            try:
+                data = r.json()
+                feed_file = os.path.join(feeds_dir, "intel_metadefender_{}.json".format(
+                    datetime.now().isoformat().split(".")[0].replace(":", "_")))
+                if len(data) > 0:
+                    write_json(file=feed_file, json_obj=data)
+                    logger.info("Successfully saved in %s" % feed_file)
+                else:
+                    logger.warning("Empty feed, no data saved")
+            except json.decoder.JSONDecodeError:
+                logger.error("Empty feed file or bad json")
+        else:
+            logger.error("Bad HTTP response, got %d" % r.status_code)
+    except requests.RequestException:
         logger.error("Information grabbing failed")
-    if r.status_code == 200:
-        try:
-            data = r.json()
-            feed_file = os.path.join(feeds_dir, "intel_metadefender_{}.json".format(datetime.now().isoformat().split(".")[0].replace(":", "_")))
-            if len(data) > 0:
-                write_json(file=feed_file, json_obj=data)
-                logger.info("Successfully saved in %s" % feed_file)
-            else:
-                logger.warning("Empty feed, no data saved")
-        except json.decoder.JSONDecodeError:
-            logger.error("Empty feed file or bad json")
-    else:
-        logger.error("Bad HTTP response, got %d" % r.status_code)
 
 
 def metadefender_run():
