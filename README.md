@@ -9,7 +9,7 @@ This service is designed for local storage and visualization of data feeds from 
 
 Each service is designed as a separate docker container. ELK stack is the base of data processing and visualizing.
 
-Just run docker-compose to start the service and do not forger to create ```key.json``` file with API-keys for servises:
+Just run docker-compose to start the service and do not forget to create ```app/key.json``` file with API-keys for servises:
 
 ```
 {
