@@ -44,6 +44,9 @@ def filter_old(raw_data):
         except ValueError:
             logger.debug("Bad feed item: bad analysis_start_time")
             continue
+        except TypeError:
+            logger.debug("Bad feed item: bad analysis_start_time")
+            continue
         except KeyError:
             logger.debug("Bad feed item: no md5")
             continue
