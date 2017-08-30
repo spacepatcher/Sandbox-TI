@@ -41,17 +41,14 @@ def filter_old(raw_data):
         try:
             analysis_timestamp = datetime(*time.strptime(data_item.get("analysis_start_time"), "%Y-%m-%d %H:%M:%S")[:6])
             added_hash = data_item["md5"]
+            if analysis_timestamp >= last_added_timestamp and added_hash != last_added_hash:
+                filtered.append(data_item)
         except ValueError:
             logger.debug("Bad feed item: bad analysis_start_time")
-            continue
         except TypeError:
             logger.debug("Bad feed item: bad analysis_start_time")
-            continue
         except KeyError:
             logger.debug("Bad feed item: no md5")
-            continue
-        if analysis_timestamp >= last_added_timestamp and added_hash != last_added_hash:
-            filtered.append(data_item)
     config["hybrid-analysis"]["last_added"] = analysis_timestamp.strftime("%Y-%m-%d %H:%M:%S")
     config["hybrid-analysis"]["last_added_hash"] = added_hash
     write_json(json_obj=config, file=config_path)
