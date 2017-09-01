@@ -60,7 +60,7 @@ def filter_old(raw_data):
     last_added_timestamp = datetime(*time.strptime(config.get("malwr").get("last_added"), "%Y-%m-%d %H:%M:%S")[:6])
     last_added_hash = config.get("malwr").get("last_added_hash")
     for data_item in reversed(raw_data):
-        analysis_timestamp_raw = data_item["date"].replace(".", "").replace("am", "AM").replace("pm", "PM").replace("midnight", "12 AM").replace("noon", "12 PM")
+        analysis_timestamp_raw = data_item["date"].replace(".", "").replace("Sept", "Sep").replace("am", "AM").replace("pm", "PM").replace("midnight", "12 AM").replace("noon", "12 PM")
         while True:
             try:
                 analysis_timestamp = datetime.strptime(analysis_timestamp_raw, "%b %d, %Y, %I:%M %p")
